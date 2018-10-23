@@ -83,7 +83,7 @@ ${yamlText}
   def updatedYamlText = dumpBlock(yaml)
   
   if (index >= 0) {
-    yamlToken[index] = "${updatedYamlText}\n"
+    yamlToken[index] = "${updatedYamlText}\n".toString()
     if (index > 0) {
       yamlToken[index] = '\n' + yamlToken[index]
     }
