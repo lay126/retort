@@ -32,13 +32,24 @@ def update(def ret) {
   }
   
   logger.debug("FILE : ${config.file}")
- 
+
   if (!config.update) {
     logger.error('file is required.')
     createException('RC402')
   } else if (!(config.update in Map)){
     logger.error('update only support Map type parameter.')
     createException('RC403')
+  }
+  
+  // validate config.index
+  def index = -1 
+  if (config.index in Integer) {
+    index = config.index
+  } else if (config.index in CharSequence && config.index.isInteger()) {
+    index = config.index as Integer
+  } else if (config.index) {
+    logger.error('index must be Integer of Integer String')
+    createException('RC407')
   }
   
   logger.debug("UPDATE : ${config.update}")
@@ -50,9 +61,11 @@ ${yamlText}
 """)
 
   def yamlSeparator = '---'
-  if (config.index || config.index in Number) {
-    def yamlToken = yamlText.tokenize(yamlSeparator)
-    yamlText = yamlToken[config.index as Integer].trim()
+  def yamlToken
+  if (index >= 0) {
+    yamlToken = yamlText.tokenize(yamlSeparator)
+    logger.info("Getting ${index} out of ${yamlToken.size}")
+    yamlText = yamlToken[index].trim()
   }
 
   def yaml = load(yamlText)
@@ -68,6 +81,14 @@ ${yamlText}
   logger.debug("${yaml}")
   
   def updatedYamlText = dumpBlock(yaml)
+  
+  if (index >= 0) {
+    yamlToken[index] = "${updatedYamlText}\n"
+    if (index > 0) {
+      yamlToken[index] = '\n' + yamlToken[index]
+    }
+    updatedYamlText = yamlToken.join(yamlSeparator)
+  }
   
   logger.debug("""Updated yaml contents
 ${updatedYamlText}
