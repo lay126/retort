@@ -64,7 +64,7 @@ ${yamlText}
   def yamlToken
   if (index >= 0) {
     yamlToken = yamlText.split(yamlSeparator)
-    logger.info("Getting ${index} out of ${yamlToken.size}")
+    logger.info("Getting ${index} out of ${yamlToken.size()}")
     yamlText = yamlToken[index].trim()
   }
 
