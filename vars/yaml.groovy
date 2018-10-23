@@ -19,7 +19,8 @@ static def dump(def yaml){
 
 /**
  * file
- * update map key: yaml path, value: value
+ * update - type : map, key: yaml path, value: value
+ * index - index of separated yaml by '---'. 
  */
 def update(def ret) {
   Logger logger = Logger.getLogger(this)
@@ -42,10 +43,17 @@ def update(def ret) {
   
   logger.debug("UPDATE : ${config.update}")
 
+  logger.info("Loading file : ${config.file}")
   def yamlText = readFile file: config.file
   logger.debug("""Original yaml contents
 ${yamlText}
 """)
+
+  def yamlSeparator = '---'
+  if (config.index || config.index in Number) {
+    def yamlToken = yamlText.tokenize(yamlSeparator)
+    yamlText = yamlToken[config.index as Integer].trim()
+  }
 
   def yaml = load(yamlText)
   
@@ -66,6 +74,7 @@ ${updatedYamlText}
 """)
 
   writeFile file: config.file, text: updatedYamlText
+  logger.info("Yaml update is completed.")
 }
 
 /**
