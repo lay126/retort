@@ -19,7 +19,8 @@ static def dump(def yaml){
 
 /**
  * file
- * update map key: yaml path, value: value
+ * update - type : map, key: yaml path, value: value
+ * index - index of separated yaml by '---'. 
  */
 def update(def ret) {
   Logger logger = Logger.getLogger(this)
@@ -31,7 +32,7 @@ def update(def ret) {
   }
   
   logger.debug("FILE : ${config.file}")
- 
+
   if (!config.update) {
     logger.error('file is required.')
     createException('RC402')
@@ -40,12 +41,32 @@ def update(def ret) {
     createException('RC403')
   }
   
+  // validate config.index
+  def index = -1 
+  if (config.index in Integer) {
+    index = config.index
+  } else if (config.index in CharSequence && config.index.isInteger()) {
+    index = config.index as Integer
+  } else if (config.index) {
+    logger.error('index must be Integer of Integer String')
+    createException('RC407')
+  }
+  
   logger.debug("UPDATE : ${config.update}")
 
+  logger.info("Loading file : ${config.file}")
   def yamlText = readFile file: config.file
   logger.debug("""Original yaml contents
 ${yamlText}
 """)
+
+  def yamlSeparator = '---'
+  def yamlToken
+  if (index >= 0) {
+    yamlToken = yamlText.split(yamlSeparator)
+    logger.info("Getting ${index} out of ${yamlToken.size()}")
+    yamlText = yamlToken[index].trim()
+  }
 
   def yaml = load(yamlText)
   
@@ -61,11 +82,20 @@ ${yamlText}
   
   def updatedYamlText = dumpBlock(yaml)
   
+  if (index >= 0) {
+    yamlToken[index] = "${updatedYamlText}\n".toString()
+    if (index > 0) {
+      yamlToken[index] = '\n' + yamlToken[index]
+    }
+    updatedYamlText = yamlToken.join(yamlSeparator)
+  }
+  
   logger.debug("""Updated yaml contents
 ${updatedYamlText}
 """)
 
   writeFile file: config.file, text: updatedYamlText
+  logger.info("Yaml update is completed.")
 }
 
 /**
