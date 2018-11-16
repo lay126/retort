@@ -73,7 +73,12 @@ ${yamlText}
   config.update.each { k, v ->
       def binding = new Binding(yaml:yaml)
       def shell = new GroovyShell(binding)
-      def expression = "yaml${k} = '${v}'"
+      def expression
+      if (v in Number) {
+        expression = "yaml${k} = ${v}"
+      } else {
+        expression = "yaml${k} = '${v}'"
+      }
       
       shell.evaluate(expression)
   }
