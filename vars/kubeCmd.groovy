@@ -548,7 +548,7 @@ def scale(ret) {
     command.append(" -n ${config.namespace}")
   }
   
-  if (config.replicas) {
+  if (config.replicas || config.replicas in Number) {
     logger.debug("REPLICAS : ${config.replicas}")
     command.append(" --replicas=${config.replicas}")
   } else {
