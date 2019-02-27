@@ -49,8 +49,9 @@ public class ContainerBuilder implements Serializable {
 				it.envVars = it.env.collect {
 					def key = it.keySet()[0]
 					def val = it[key]
-					script.envVar(['key': key, 'val': val])
+					script.envVar(['key': key, 'value': val])
 				}
+				it.remove('env')
 			}
 			  
 			script.containerTemplate(it)
