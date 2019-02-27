@@ -3,8 +3,10 @@ containers:
   image: docker
   ttyEnabled: true
   command: cat
-volumes:
-- host:/var/run/docker.sock: /var/run/docker.sock
+  env:
+  - DOCKER_HOST: 'tcp://jenkins-dind-service:2375'
+#volumes:
+#- host:/var/run/docker.sock: /var/run/docker.sock
 #- hostPathVolume:
 #    hostPath: '/var/run/docker.sock'
 #    mountPath: '/var/run/docker.sock'

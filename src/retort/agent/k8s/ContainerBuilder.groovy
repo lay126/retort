@@ -43,7 +43,17 @@ public class ContainerBuilder implements Serializable {
 		logger.info("Build podTemplate with...\n${parser.dump(config)}")
 
 		def _new = config.clone()
-		_new.containers = _new.containers.collect { script.containerTemplate(it) }
+		_new.containers = _new.containers.collect {
+			if(it.env) {
+				it.env.collect {
+					def key = it.keySet()[0]
+					def val = it[key]
+					script.envVar(['key': key, 'val': val])
+				}
+			}
+			  
+			script.containerTemplate(it)
+		}
 		_new.volumes = _new.volumes.collect {
 			def type = it.keySet().find({ it.contains(':') || it == 'empty' })
 			def args = it
