@@ -42,10 +42,11 @@ public class ContainerBuilder implements Serializable {
 	public def build(def ret){
 		logger.info("Build podTemplate with...\n${parser.dump(config)}")
 
+		// https://github.com/jenkinsci/kubernetes-plugin#container-configuration
 		def _new = config.clone()
 		_new.containers = _new.containers.collect {
 			if(it.env) {
-				it.env = it.env.collect {
+				it.envVars = it.env.collect {
 					def key = it.keySet()[0]
 					def val = it[key]
 					script.envVar(['key': key, 'val': val])
